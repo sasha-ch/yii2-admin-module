@@ -15,7 +15,7 @@ use asdfstudio\admin\helpers\AdminHelper;
  *
  * Renders active select widget with related models
  */
-class Select extends InputWidget
+class Select extends Input
 {
     /**
      * @var ActiveQuery|array

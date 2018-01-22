@@ -12,7 +12,7 @@ use yii\widgets\InputWidget;
  *
  * Renders active select widget with related models
  */
-class Textarea extends InputWidget
+class Textarea extends Input
 {
     /**
      * Textarea columns count
