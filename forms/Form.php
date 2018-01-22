@@ -1,10 +1,7 @@
 <?php
 
-
 namespace asdfstudio\admin\forms;
 
-
-use Yii;
 use asdfstudio\admin\forms\widgets\Button;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
@@ -12,9 +9,12 @@ use yii\bootstrap\ActiveForm;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
+use Yii;
+
 
 /**
  * Class Form
+ *
  * @package asdfstudio\admin\forms
  *
  * Renders form with defined fields and layout.
@@ -65,16 +65,23 @@ class Form extends ActiveForm
 {
     /**
      * Model used in form
+     *
      * @var ActiveRecord
      */
     public $model;
+
+    protected $linkedFields = [];
+
     /**
      * Fields list
+     *
      * @var array
      */
     public $fields = [];
+
     /**
      * If true, "Save" button will be rendered at end of form
+     *
      * @var bool
      */
     public $renderSaveButton = true;
@@ -86,19 +93,21 @@ class Form extends ActiveForm
     {
         parent::init();
         if ($this->renderSaveButton) {
-            $this->fields[] = [
+            $saveButton = [
+                'id' => 'save',
+                'class' => Button::className(),
+                'label' => Yii::t('admin', 'Save'),
+                'options' => [
+                    'class' => 'btn btn-success',
+                ],
+            ];
+            /*$this->fields[] = [
                 'wrapper' => '<div class="form-group">{items}</div>',
                 'items' => [
-                    [
-                        'id' => 'save',
-                        'class' => Button::className(),
-                        'label' => Yii::t('admin', 'Save'),
-                        'options' => [
-                            'class' => 'btn btn-success',
-                        ],
-                    ],
+                    $saveButton
                 ]
-            ];
+            ];*/
+            $this->fields['items'][] = $saveButton;
         }
     }
 
@@ -113,12 +122,15 @@ class Form extends ActiveForm
 
     /**
      * Renders form with fields
+     *
      * @param array $fields
+     *
      * @return string
      * @throws InvalidConfigException
      */
     public function renderForm($fields)
     {
+
         if (isset($fields['visible']) && !$fields['visible']) {
             return '';
         }
@@ -131,13 +143,14 @@ class Form extends ActiveForm
                     'options' => [
                         'name' => $fields['id'],
                         'type' => 'submit',
-                        'value' => $fields['label']
+                        'value' => $fields['label'],
                     ],
                 ], $fields));
             } else {
                 if (!isset($fields['attribute'])) {
                     throw new InvalidConfigException('Layout\'s field config must have "attribute" property');
                 }
+
                 return $this->field($this->model, $fields['attribute'])->widget($fields['class'], $fields);
             }
         } elseif (isset($fields['items'])) {
@@ -145,6 +158,7 @@ class Form extends ActiveForm
             if (isset($fields['wrapper'])) {
                 $items = strtr($fields['wrapper'], ['{items}' => $items]);
             }
+
             return $items;
         } else {
             $out = '';
@@ -153,13 +167,16 @@ class Form extends ActiveForm
                     $out .= $this->renderForm($field);
                 }
             }
+
             return $out;
         }
     }
 
     /**
      * Return registered actions list indexed by name
+     *
      * @param array $actions
+     *
      * @return array
      */
     public function getActions($actions = null)
@@ -169,7 +186,8 @@ class Form extends ActiveForm
         }
         if (is_array($actions)) {
             $result = [];
-            if (isset($actions['action']) && isset($actions['id']) && is_a($actions['class'], Button::className(), true)) {
+            if (isset($actions['action']) && isset($actions['id']) && is_a($actions['class'], Button::className(),
+                    true)) {
                 $result[$actions['id']] = $actions['action'];
             } else {
                 $res = [];
@@ -178,8 +196,10 @@ class Form extends ActiveForm
                 }
                 $result = ArrayHelper::merge($result, $res);
             }
+
             return $result;
         }
+
         return [];
     }
 
@@ -206,19 +226,93 @@ class Form extends ActiveForm
 
     public function saveModel()
     {
-        return $this->model->save();
+        $model = $this->model;
+
+        return $model::getDb()->transaction(function ($db) use ($model){
+
+            $modelItems = $this->getLinkedFields();
+
+            foreach ($modelItems as $item) {
+                $this->saveLinkedModel($model, $item);
+            }
+            return $model->save();
+        });
+
+    }
+
+    protected function getLinkedFields($namesOnly = false)
+    {
+        $fields = array_filter($this->fields['items'], function ($v){
+            //get items/attributes list with 'model' type/format
+            return isset($v['type']) && ($v['type'] == 'model');
+        });
+
+        return $namesOnly ? array_column($fields, 'attribute') : $fields;
+    }
+
+    protected function saveLinkedModel($model, $item)
+    {
+        $attribute = $item['attribute'];
+        $modelClass = $item['query']->modelClass;
+        $multiple = $item['multiple'];
+
+        if ($multiple == true) {
+            $oldAttrIds = [];
+            foreach ($model->{$attribute} as $oldVal) {
+                $oldAttrIds[] = $oldVal->id;
+            }
+            $newAttrIds = (array)$this->linkedFields[$attribute];
+
+            $toLink = array_filter(array_diff($newAttrIds, $oldAttrIds));
+            $toUnlink = array_filter(array_diff($oldAttrIds, $newAttrIds));
+
+            foreach ($toLink as $id) {
+                $linkedModel = $modelClass::findOne($id);
+                $model->link($attribute, $linkedModel);
+            }
+            foreach ($toUnlink as $id) {
+                $linkedModel = $modelClass::findOne($id);
+                $model->unlink($attribute, $linkedModel, true);
+            }
+        } else {
+            $val = $this->linkedFields[$attribute];
+            if (empty($val) && empty($model->{$attribute}) ||
+                is_object($model->{$attribute}) && $val == $model->{$attribute}->id) {
+                return true;
+            }
+
+            if (!empty($val)) {
+                $linkedModel = $modelClass::findOne($val);
+                $model->link($attribute, $linkedModel);
+            } else {
+                $linkedModel = $model->{$attribute};
+                $model->unlink($attribute, $linkedModel);
+            }
+
+        }
+
+        return true;
     }
 
     public function load($data, $formName = null)
+    {
+        //store linked models data
+        $this->loadLinked($data, $formName);
+
+        //load normal AR attrs
+        return $this->model->load($data, $formName);
+    }
+
+    protected function loadLinked($data, $formName = null)
     {
         $scope = $formName === null ? $this->model->formName() : $formName;
         if ($scope != '' && isset($data[$scope])) {
             $data = $data[$scope];
         }
-
-        foreach ($data as $attribute => $value) {
-            $this->model->{$attribute} = $value;
+        $linkedFields = $this->getLinkedFields(true);
+        foreach ($linkedFields as $field) {
+            $this->linkedFields[$field] = $data[$field];
         }
-        return true;
     }
+
 }
