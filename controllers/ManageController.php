@@ -121,6 +121,7 @@ class ManageController extends Controller
                     $this->module->trigger(Entity::EVENT_UPDATE_SUCCESS, new Event([
                         'sender' => $form->model,
                     ]));
+                    return $this->redirect(['index', 'entity' => $this->entity->id]);
                 } else {
                     $this->module->trigger(Entity::EVENT_UPDATE_FAIL, new Event([
                         'sender' => $form->model,
@@ -175,9 +176,9 @@ class ManageController extends Controller
                     ]));
 
                     return $this->redirect([
-                        'update',
+                        'index',
                         'entity' => $this->entity->id,
-                        'id' => $form->model->primaryKey,
+                        //'id' => $form->model->primaryKey,
                     ]);
                 } else {
                     $this->module->trigger(Entity::EVENT_CREATE_FAIL, new Event([
