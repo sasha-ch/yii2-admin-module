@@ -14,7 +14,7 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist asdf-studio/yii2-admin-module "*"
+php composer.phar require --prefer-dist ~~asdf-studio~~/yii2-admin-module "*"
 ```
 
 or add
@@ -28,7 +28,8 @@ to the require section of your `composer.json` file.
 
 ##Usage
 
-First you need to create a new module in your's project directory (e.g. `/path/to/project/frontent/modules/admin`). Create a new class `Module` extending `asdfstudio\admin\Module`.
+First you need to create a new module in your's project directory (e.g. `/path/to/project/modules/admin`).
+Create a new class `Module` extending `asdfstudio\admin\Module`.
 
 ```php
 use asdfstudio\admin\Module as AdminModule;
@@ -46,7 +47,7 @@ return [
     'modules' => [
     	...
         'admin' => [
-            'class' => 'frontend\modules\admin\Module',
+            'class' => 'app\modules\admin\Module',
         ],
         ...
     ],
@@ -54,18 +55,19 @@ return [
 ];
 ```
 
-It's all. Now you can access to admin page by `/admin` path.
+It's all. ~~Now you can access to admin page by `/admin` path.~~
 
 
 ###Registering models 
 
 Now we need to register first model in our admin panel. Create class `UserEntity` in your `admin/entities` folder.
 Class should inherit `asdfstudio\admin\base\Entity`.
-Attributes configuration format is similar to [DetailView](http://www.yiiframework.com/doc-2.0/guide-data-widgets.html#detailview).
+Attributes configuration format is similar to [DetailView]
+~~(http://www.yiiframework.com/doc-2.0/guide-data-widgets.html#detailview).~~ **(404 link)**
 
 ```php
 use asdfstudio\admin\base\Entity;
-use common\models\User;
+use app\models\User;
 
 class UserEntity extends Entity
 {
@@ -88,6 +90,17 @@ class UserEntity extends Entity
         ];
     }
 
+    public static function model()
+    {
+        return User::className(); // class of User model
+    }
+
+}
+```
+
+Optionaly, you may define in UserEntity:
+
+```php
     public static function labels()
     {
         return ['User', 'Users']; // labels used in admin page
@@ -96,11 +109,6 @@ class UserEntity extends Entity
     public static function slug()
     {
         return 'user'; // this is a path inside admin module. E.g. /admin/manage/user[/<id>[/edit]]
-    }
-
-    public static function model()
-    {
-        return User::className(); // class of User model
     }
 
     public function form($scenario = Model::SCENARIO_DEFAULT)
@@ -149,7 +157,6 @@ class UserEntity extends Entity
             ],
         ];
     }
-}
 ```
 
 Register this item in your Module class:
@@ -173,7 +180,7 @@ class Module extends AdminModule {
 
 Now go to `/admin/manage/user` and you will see table with all users.
 
-For example view [asdf-studio/yii2-blog-module](https://github.com/asdf-studio/yii2-blog-module).
+For example view ~~[asdf-studio/yii2-blog-module](https://github.com/asdf-studio/yii2-blog-module).~~
 
 
 ###Creating custom pages
