@@ -4,7 +4,7 @@ use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use asdfstudio\admin\AdminAsset;
-use frontend\widgets\Alert;
+use app\widgets\Alert;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
@@ -35,7 +35,7 @@ AdminAsset::register($this);
     <?php
         NavBar::begin([
             'brandLabel' => Yii::t('admin', 'Dashboard'),
-            'brandUrl' => ['admin/index'],
+            'brandUrl' => ['/admin'],
             'options' => [
                 'class' => 'navbar navbar-inverse navbar-fixed-top',
             ],

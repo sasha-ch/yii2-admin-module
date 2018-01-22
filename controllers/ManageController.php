@@ -21,6 +21,7 @@ class ManageController extends Controller
 {
     /* @var Entity */
     public $entity;
+
     /* @var ActiveRecord */
     public $model;
 
@@ -52,6 +53,9 @@ class ManageController extends Controller
     public function beforeAction($action)
     {
         if (parent::beforeAction($action)) {
+            if($action->id == 'home'){
+                return true;
+            }
             $entity = Yii::$app->getRequest()->getQueryParam('entity', null);
             $this->entity = $this->getEntity($entity);
             if ($this->entity === null) {
@@ -70,6 +74,13 @@ class ManageController extends Controller
         } else {
             return false;
         }
+    }
+
+    public function actionHome()
+    {
+        return $this->render('/layouts/main', [
+            'content' => '<h1>Choise model, plz</h1>'
+        ]);
     }
 
     public function actionIndex($entity)

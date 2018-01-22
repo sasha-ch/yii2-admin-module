@@ -96,7 +96,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public function bootstrap($app)
     {
         $this->registerRoutes([
-            $this->urlPrefix . ''                                             => 'admin/admin/index',
+            $this->urlPrefix . ''                                             => 'admin/manage/home',
+            $this->urlPrefix . '/manage'                                      => 'admin/manage/home',
             $this->urlPrefix . '/manage/<entity:[\w\d-_]+>'                   => 'admin/manage/index',
             $this->urlPrefix . '/manage/<entity:[\w\d-_]+>/create'            => 'admin/manage/create',
             $this->urlPrefix . '/manage/<entity:[\w\d-_]+>/<id:[\d]+>'        => 'admin/manage/view',
