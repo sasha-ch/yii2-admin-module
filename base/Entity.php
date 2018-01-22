@@ -82,11 +82,19 @@ abstract class Entity extends Component
      *
      * @return array
      */
-    public static function labels() {
-        $class = new ReflectionClass(static::className());
-        $class = $class->getShortName();
+    public static function labels()
+    {
+
+        $class = static::getShortName(static::model());
 
         return [$class, Inflector::pluralize($class)];
+    }
+
+    protected function getShortName($class)
+    {
+        $reflect = new ReflectionClass($class);
+
+        return $reflect->getShortName();
     }
 
     /**
@@ -99,8 +107,9 @@ abstract class Entity extends Component
      *
      * @return string
      */
-    public static function slug() {
-        return Inflector::slug(static::model());
+    public static function slug()
+    {
+        return Inflector::slug(static::getShortName(static::model()));
     }
 
     /**
