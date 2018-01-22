@@ -6,7 +6,7 @@ namespace asdfstudio\admin\components;
 
 use asdfstudio\admin\helpers\AdminHelper;
 use Yii;
-use yii\base\Formatter;
+use yii\i18n\Formatter;
 use yii\db\ActiveRecord;
 use yii\helpers\Html;
 

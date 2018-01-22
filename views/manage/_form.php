@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
  * @var asdfstudio\admin\forms\Form $formClass
  * @var string $scenario
  */
-$formOptions = $entity::form($scenario);
+$formOptions = $entity->form($scenario);
 $formClass = $formOptions['class'];
 ?>
 
