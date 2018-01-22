@@ -59,6 +59,7 @@ class Select extends InputWidget
         return Html::activeDropDownList($this->model, $this->attribute, $this->items, [
             'class' => 'form-control',
             'multiple' => $this->multiple,
+            'prompt' => '---'       //blank value
         ]);
     }
 }
