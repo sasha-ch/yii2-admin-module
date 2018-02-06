@@ -8,22 +8,23 @@ Interface using [SB Admin](http://startbootstrap.com/template-overviews/sb-admin
 
 ##Installation
 
-
-The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
-
-Either run
+To install this fork now add:
 
 ```
-php composer.phar require --prefer-dist ~~asdf-studio~~/yii2-admin-module "*"
+    "repositories": [
+	...
+        {
+            "type": "vcs",
+            "url": "https://github.com/sasha-ch/yii2-admin-module"
+        }
+    ],
+    "require": {
+	...
+        "asdf-studio/yii2-admin-module": "dev-master"
+    },
 ```
 
-or add
-
-```
-"asdf-studio/yii2-admin-module": "*"
-```
-
-to the require section of your `composer.json` file.
+to your `composer.json` file.
 
 
 ##Usage
